@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui"
+    />
+  </head>
+  <body class="lightBackgrown">
+    <div id="app">
+      <v-app class="lightBackgrown">
+        <v-main
+          ><v-system-bar height="30" class="darkBrown">
+            <v-icon class="white--text">mdi-bus</v-icon
+            ><span class="white--text">跑跑公車</span>
+          </v-system-bar>
+          <v-container style="height: 100vh" fluid class="px-10 pt-5">
+            <v-row class="mt-0 mb-2 px-3 mx-auto">
+              <v-btn
+                v-for="btn in dialogButtons"
+                :key="btn.text"
+                class="green1 ma-1 blackBorder"
+                dark
+                @click="OpenDialog(btn)"
+              >
+                <v-icon left class="white--text"> mdi-{{btn.icon}} </v-icon>
+                <span>{{btn.text}}</span>
+              </v-btn>
+            </v-row>
+            <v-row>
+              <v-col cols="12" md="5" lg="4">
+                <v-card
+                  class="lightBrown blackBorder py-5 px-3 mx-auto"
+                  max-width="400px"
+                >
+                  <v-row class="mx-0">
+                    <v-col class="p-0"
+                      ><v-text-field
+                        v-model="searchText"
+                        solo
+                        color="darkBrown"
+                        label="輸入公車路線 查詢公車動態"
+                        prepend-inner-icon="mdi-magnify"
+                        hide-details
+                      >
+                      </v-text-field>
+                    </v-col>
+                  </v-row>
+                  <v-row
+                    v-for="rowBtns,r in buttons"
+                    :key="r"
+                    class="mx-0 px-0"
+                  >
+                    <v-col
+                      v-for="btn in rowBtns"
+                      :key="btn"
+                      class="px-0 mx-0 text-center"
+                      cols="2"
+                    >
+                      <v-btn
+                        class="white px-0"
+                        v-if="btn!==null"
+                        @click="Input(btn)"
+                        small
+                      >
+                        <v-icon v-if="btn==='del'" small>mdi-backspace</v-icon>
+                        <span v-else> {{btn}}</span>
+                      </v-btn>
+                    </v-col>
+                  </v-row>
+                </v-card>
+              </v-col>
+              <v-col cols="12" md="7">
+                <v-card class="blackBorder mx-auto" max-width="800px">
+                  <v-tabs
+                    v-model="tab"
+                    background-color="brown"
+                    dark
+                    v-if="tabs"
+                  >
+                    <v-tab v-for="item,i in tabs" :key="i"> {{ item }} </v-tab>
+                  </v-tabs>
+                  <v-tabs-items v-model="tab">
+                    <v-tab-item key="0">
+                      <v-card flat max-height="50vh">
+                        <v-card-text class="pa-0"
+                          ><v-row
+                            class="
+                              darkGreen
+                              ma-0
+                              white--text
+                              text-center
+                              blackBorder
+                            "
+                          >
+                            <v-col cols="4">站名 </v-col>
+                            <v-col cols="4"> 預估到站時間</v-col>
+                            <v-col cols="4">車次資訊 </v-col>
+                          </v-row>
+                          <v-timeline dense clipped v-if="timeLine1">
+                            <v-timeline-item
+                              color="grey"
+                              small
+                              v-for="item,i in timeLine1"
+                              :key="i"
+                            >
+                              <v-row>
+                                <v-col cols="3" sm="4">
+                                  {{item.StopName.Zh_tw}}
+                                </v-col>
+                                <v-col cols="4">
+                                  <v-chip outlined>9:58</v-chip>
+                                </v-col>
+                                <v-col cols="5" sm="4">
+                                  <v-chip outlined label
+                                    ><v-img
+                                      width="20"
+                                      src="./icon/wheel.png"
+                                      class="mr-2"
+                                    ></v-img
+                                    >FHJ-101</v-chip
+                                  >
+                                </v-col>
+                              </v-row>
+                            </v-timeline-item>
+                            <v-timeline-item color="grey" small>
+                              <v-row>
+                                <v-col cols="4"> 中壢分局 </v-col>
+                                <v-col cols="4">
+                                  <v-chip class="darkBrown" dark>進站中</v-chip>
+                                </v-col>
+                              </v-row>
+                            </v-timeline-item>
+                          </v-timeline></v-card-text
+                        >
+                      </v-card>
+                    </v-tab-item>
+                    <v-tab-item key="1">
+                      <v-card flat max-height="50vh">
+                        <v-card-text class="pa-0"
+                          ><v-row
+                            class="
+                              darkGreen
+                              ma-0
+                              white--text
+                              text-center
+                              blackBorder
+                            "
+                          >
+                            <v-col cols="4">站名 </v-col>
+                            <v-col cols="4"> 預估到站時間</v-col>
+                            <v-col cols="4">車次資訊 </v-col>
+                          </v-row>
+                          <v-timeline dense clipped v-if="timeLine2">
+                            <v-timeline-item
+                              color="grey"
+                              small
+                              v-for="item,i in timeLine2"
+                              :key="i"
+                            >
+                              <v-row>
+                                <v-col cols="3" sm="4">
+                                  {{item.StopName.Zh_tw}}
+                                </v-col>
+                                <v-col cols="4">
+                                  <v-chip outlined>9:58</v-chip>
+                                </v-col>
+                                <v-col cols="5" sm="4">
+                                  <v-chip outlined label
+                                    ><v-img
+                                      width="20"
+                                      src="./icon/wheel.png"
+                                      class="mr-2"
+                                    ></v-img
+                                    >FHJ-101</v-chip
+                                  >
+                                </v-col>
+                              </v-row>
+                            </v-timeline-item>
+                            <v-timeline-item color="grey" small>
+                              <v-row>
+                                <v-col cols="4"> 中壢分局 </v-col>
+                                <v-col cols="4">
+                                  <v-chip class="darkBrown" dark>進站中</v-chip>
+                                </v-col>
+                              </v-row>
+                            </v-timeline-item>
+                          </v-timeline></v-card-text
+                        >
+                      </v-card>
+                    </v-tab-item>
+                  </v-tabs-items>
+                </v-card>
+              </v-col>
+            </v-row>
+            <v-dialog v-model="isShow" width="70vw" max-width="800px">
+              <v-card class="px-5 py-3 lightBackgrown" height="400px">
+                <v-card-title>
+                  <span v-if="dialog">{{dialog.title}}</span>
+                  <v-spacer></v-spacer>
+                  <v-menu bottom left>
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-btn
+                        icon
+                        v-bind="attrs"
+                        v-on="on"
+                        @click="isShow = false"
+                      >
+                        <v-icon>mdi-close</v-icon>
+                      </v-btn>
+                    </template>
+                  </v-menu>
+                </v-card-title>
+                <v-divider></v-divider>
+                <v-card-text class="py-1 black--text">
+                  <template v-if="dialog.type==='price'">
+                    <v-radio-group v-model="row" row>
+                      <v-radio label="往 桃園" value="radio-1"></v-radio>
+                      <v-radio label="往 中壢" value="radio-2"></v-radio>
+                    </v-radio-group>
+                    <v-row>
+                      <v-col cols="6">
+                        <v-autocomplete
+                          prefix="起站"
+                          solo
+                          v-model="values"
+                          :items="start"
+                          dense
+                        ></v-autocomplete>
+                      </v-col>
+                      <v-col cols="6">
+                        <v-autocomplete
+                          prefix="迄站"
+                          solo
+                          v-model="values"
+                          :items="start"
+                          dense
+                        ></v-autocomplete>
+                      </v-col>
+                    </v-row>
+                    <v-row class="mt-0 pt-0">
+                      <v-col cols="12" sm="4">
+                        <v-sheet class="transparent">
+                          <h4>查詢結果</h4>
+                          <span>全票 31 元</span><br />
+                          <span>半票 16 元</span><br />
+                          <span>學生票 23 元</span></v-sheet
+                        >
+                      </v-col>
+                      <v-col cols="12" sm="8">
+                        <v-sheet class="transparent">
+                          <h4>桃園市市民卡乘車優惠：</h4>
+                          <span>
+                            (1)
+                            持市民卡乘車全票最高收60元；半票最高收30元；學生票最高收45元。 </span
+                          ><br />
+                          <span>
+                            (2) 第一趟次由乘客自行支付車資，並享有票價上限優惠。 </span
+                          ><br />
+                          <span>
+                            (3)
+                            第二趟次享有票價上限優惠及基本票價(全票18元、半票9元)免費。 </span
+                          ><br />
+                          <span>(4) 持學生卡享75折優惠。</span>
+                        </v-sheet>
+                      </v-col>
+                    </v-row>
+                  </template>
+                  <template v-if="dialog.type==='route'">
+                    <p class="mt-5">營運業者：中壢客運</p>
+                    <p>客服電話：0800-255722</p>
+                    <br />
+                    <p>營運業者：桃園客運</p>
+                    <p>客服電話：0800-053808</p>
+                  </template>
+                </v-card-text>
+              </v-card>
+            </v-dialog>
+          </v-container>
+        </v-main>
+      </v-app>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+    <script>
+      new Vue({
+        el: "#app",
+        vuetify: new Vuetify(),
+        data() {
+          return {
+            tab: null,
+            tabs: ["往 桃園", "往 中壢", "公車路線 地圖"],
+            buttons: [
+              ["紅", "藍", "棕", "1", "2", "3"],
+              ["綠", "橘", "黃", "4", "5", "6"],
+              ["A", "E", "F", "7", "8", "9"],
+              ["H", "L", "T", "R", "0", "del"],
+            ],
+            dialogButtons: [
+              { text: "票價查詢", type: "price", icon: "currency-usd" },
+              { text: "路線查詢", type: "route", icon: "routes" },
+              {
+                text: "時刻表",
+                type: "time",
+                icon: "clock-time-eight-outline",
+              },
+              { text: "站址表", type: "local", icon: "map-outline" },
+              { text: "路線圖", type: "road", icon: "map-marker" },
+            ],
+            searchText: "",
+            isShow: false,
+            dialog: {},
+            start: ["中壢分局"],
+            timeLine1: [],
+            timeLine2: [],
+            backData: [],
+          };
+        },
+        methods: {
+          Input(text) {
+            if (text === "del") {
+              this.searchText = this.searchText.slice(0, -1);
+            } else {
+              this.searchText += text;
+            }
+          },
+          OpenDialog(param) {
+            this.dialog.title = param.text;
+            this.dialog.type = param.type;
+            this.isShow = true;
+          },
+
+          // get 公車預估到站資料
+          GetBus(routeName) {
+            let busData = [];
+            let goData = [];
+            // const searchBtn = document.querySelector("#searchBtn");
+            axios({
+              method: "get",
+              url: `https://ptx.transportdata.tw/MOTC/v2/Bus/EstimatedTimeOfArrival/City/Taoyuan/${routeName}?$format=JSON`,
+              // headers: GetAuthorizationHeader(),
+            })
+              .then((response) => {
+                console.log("預估", response);
+                const data = response.data;
+
+                // 篩出有在跑的公車(存公車物件)
+                const bus = data.filter((item) => item.PlateNumb);
+                // console.log('bus', bus)
+
+                //從有在跑的公車資料裡分類出「去程0」與「返程1」
+                const cachegoData = bus.filter((item) => !item.Direction);
+                const cachebackData = bus.filter((item) => item.Direction);
+
+                console.log("cachebackData", cachebackData);
+                // console.log('cachegoData',goData)
+
+                // 組出我要的資料格式
+                cachebackData.forEach((item) => {
+                  // [a,a,b,c]
+                  const index = this.backData
+                    .map((item) => item.plateNumb)
+                    .indexOf(item.PlateNumb);
+
+                  if (index === -1) {
+                    // 代表沒找到
+                    this.backData.push({
+                      plateNumb: item.PlateNumb, //車牌號碼
+                      stops: [
+                        {
+                          estimateTime: item.EstimateTime, //到站時間預估(秒)
+                          stopUID: item.StopUID, //站牌唯一識別代碼
+                        },
+                      ],
+                    });
+                  } else {
+                    // 有找到
+                    this.backData[index].stops.push({
+                      estimateTime: item.EstimateTime, //到站時間預估(秒)
+                      stopUID: item.StopUID, //站牌唯一識別代碼
+                    });
+                  }
+                });
+                console.log("backData", this.backData);
+
+                this.GetRoute(routeName, response.data[0].RouteID);
+              })
+              .catch((error) => console.log("error", error));
+          },
+          // get 公車路線站序資料
+          GetRoute(routeName, routeId) {
+            const goList = document.querySelector("#goList");
+            // const backList = document.querySelector("#backList");
+            axios({
+              method: "get",
+              url: `https://ptx.transportdata.tw/MOTC/v2/Bus/StopOfRoute/City/Taoyuan/${routeName}`,
+              // headers: GetAuthorizationHeader()
+            })
+              .then((response) => {
+                console.log("往返列表", response);
+                const data = response.data;
+
+                const routeData = data.filter(
+                  (item) => item.RouteID === routeId
+                );
+                console.log(routeData);
+
+                // 返程
+                let backStr = "";
+                let busID = "";
+                let time = 0;
+                let timeText = "";
+
+                routeData[1].Stops.forEach((item) => {
+                  this.backData.forEach((back) => {
+                    back.stops.forEach((stop) => {
+                      if (stop.stopUID === item.StopUID) {
+                        busID = back.plateNumb;
+                        time = Math.floor(stop.estimateTime / 60);
+                        // console.log(busID, time)
+
+                        // 文字顯示
+                        if (time === 0) {
+                          timeText = "進站中";
+                        } else if (time <= 1 && 0 < time) {
+                          timeText = "即將到站";
+                        } else if (!time) {
+                          timeText = "--";
+                        } else {
+                          timeText = `${time} 分鐘`;
+                        }
+                      }
+                    });
+                  });
+                  console.log(item, timeText, busID);
+                  //             backStr += `<li class="list-group-item d-flex align-items-center justify-content-between">
+                  //       <div class="d-flex align-items-center ">
+                  //         <p class="timeColor border rounded-pill px-2 me-2 mb-0 bg-light">${timeText}</p>
+                  //         <h5 class="fs-6 mb-0">${item.StopUID}/${item.StopName.Zh_tw}</h5>
+                  //       </div>
+                  //       <p class="mb-0 text-primary">${busID}</p>
+                  //     </li>
+                  //  `;
+                });
+                // backList.innerHTML = backStr;
+              })
+              .catch((error) => console.log("error", error));
+          },
+        },
+        watch: {
+          searchText(val) {
+            this.GetBus("106");
+            // axios
+            //   .get(
+            //     `https://ptx.transportdata.tw/MOTC/v2/Bus/StopOfRoute/City/Taoyuan/${val}?$format=JSON`
+            //   )
+            //   .then((response) => {
+            //     console.log(response);
+            //     const data = response.data;
+            //     this.tabs[0] = `往 ${
+            //       data[0].Stops[data[0].Stops.length - 1].StopName.Zh_tw
+            //     }`;
+            //     this.timeLine1 = data[0].Stops;
+            //     this.timeLine2 = data[1].Stops;
+            //     this.tabs[1] = `往 ${
+            //       data[1].Stops[data[1].Stops.length - 1].StopName.Zh_tw
+            //     }`;
+            //     console.log(this.tabs);
+            //   })
+            //   .catch(function (error) {
+            //     // 请求失败处理
+            //     console.log(error);
+            //   });
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
+
+<style>
+  .darkBrown {
+    background-color: #785c4d !important;
+  }
+  .brown {
+    background-color: #d4b5a0 !important;
+  }
+  .lightBrown {
+    background-color: #edded3 !important;
+  }
+  .lightBackgrown {
+    background-color: #fff7f1 !important;
+  }
+  .lightGreen {
+    background-color: #b7b7a4 !important;
+  }
+  .green1 {
+    background-color: #a5a58d !important;
+  }
+  .darkGreen {
+    background-color: #6b705c !important;
+  }
+  .gray {
+    background-color: #ababab !important;
+  }
+  .blackBorder {
+    border: 2px black solid !important;
+    box-sizing: border-box !important;
+  }
+  .v-card {
+    display: flex !important;
+    flex-direction: column;
+  }
+  .v-card__text {
+    flex-grow: 1;
+    overflow: auto;
+  }
+</style>
