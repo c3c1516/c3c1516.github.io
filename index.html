@@ -122,7 +122,7 @@
                                   {{item.StopName.Zh_tw}}
                                 </v-col>
                                 <v-col cols="4">
-                                  <v-chip outlined>9:58</v-chip>
+                                  <v-chip outlined>{{item.time}}</v-chip>
                                 </v-col>
                                 <v-col cols="5" sm="4">
                                   <v-chip outlined label
@@ -176,7 +176,7 @@
                                   {{item.StopName.Zh_tw}}
                                 </v-col>
                                 <v-col cols="4">
-                                  <v-chip outlined>9:58</v-chip>
+                                  <v-chip outlined>{{item.time}}</v-chip>
                                 </v-col>
                                 <v-col cols="5" sm="4">
                                   <v-chip outlined label
@@ -207,7 +207,7 @@
               </v-col>
             </v-row>
             <v-dialog v-model="isShow" width="70vw" max-width="800px">
-              <v-card class="px-5 py-3 lightBackgrown" height="400px">
+              <v-card class="px-5 py-3 lightBackgrown" height="500px">
                 <v-card-title>
                   <span v-if="dialog">{{dialog.title}}</span>
                   <v-spacer></v-spacer>
@@ -286,6 +286,42 @@
                     <p>營運業者：桃園客運</p>
                     <p>客服電話：0800-053808</p>
                   </template>
+                  <template v-if="dialog.type==='time'">
+                    <v-row
+                      ><v-col>
+                        <v-card class="mt-3 pa-0 blackBorder">
+                          <v-card-title class="darkBrown white--text my-0 py-1"
+                            ><span class="mx-auto">平日</span></v-card-title
+                          >
+                          <v-card-text class="pa-0">
+                            <v-data-table
+                              hide-default-footer
+                              :headers="headers"
+                              :items="tableData"
+                              :item-class="row_classes"
+                            ></v-data-table
+                          ></v-card-text>
+                        </v-card>
+                      </v-col>
+                      <v-col
+                        ><v-card class="mt-3 pa-0 blackBorder">
+                          <v-card-title class="darkBrown white--text my-0 py-1"
+                            ><span class="mx-auto">假日</span></v-card-title
+                          >
+                          <v-card-text class="pa-0">
+                            <v-data-table
+                              hide-default-footer
+                              :headers="headers"
+                              :items="tableData"
+                              :item-class="row_classes"
+                            ></v-data-table
+                          ></v-card-text> </v-card
+                      ></v-col>
+                    </v-row>
+                  </template>
+                  <template v-if="dialog.type==='road'">
+                    <v-img src="./icon/image.png"></v-img>
+                  </template>
                 </v-card-text>
               </v-card>
             </v-dialog>
@@ -325,9 +361,85 @@
             isShow: false,
             dialog: {},
             start: ["中壢分局"],
-            timeLine1: [],
-            timeLine2: [],
+            timeLine1: [
+              { StopName: { Zh_tw: "大同公司" }, time: "9:54" },
+              { StopName: { Zh_tw: "土地公廟" }, time: "9:54" },
+              { StopName: { Zh_tw: "奉化南順一街口" }, time: "9:54" },
+              { StopName: { Zh_tw: "關帝廟" }, time: "9:54" },
+              { StopName: { Zh_tw: "鴻福寺" }, time: "9:54" },
+              { StopName: { Zh_tw: "北門口" }, time: "9:54" },
+              { StopName: { Zh_tw: "北門新村" }, time: "9:54" },
+              { StopName: { Zh_tw: "臺灣菸酒公司" }, time: "9:54" },
+            ],
+            timeLine2: [
+              { StopName: { Zh_tw: "大同公司" }, time: "9:54" },
+              { StopName: { Zh_tw: "土地公廟" }, time: "9:54" },
+              { StopName: { Zh_tw: "奉化南順一街口" }, time: "9:54" },
+              { StopName: { Zh_tw: "關帝廟" }, time: "9:54" },
+              { StopName: { Zh_tw: "鴻福寺" }, time: "9:54" },
+              { StopName: { Zh_tw: "北門口" }, time: "9:54" },
+              { StopName: { Zh_tw: "北門新村" }, time: "9:54" },
+              { StopName: { Zh_tw: "臺灣菸酒公司" }, time: "9:54" },
+            ],
             backData: [],
+            headers: [
+              {
+                text: "往中壢",
+                sortable: false,
+                value: "go",
+                align: "center",
+                class: "headerClass",
+              },
+              {
+                text: "往桃園",
+                value: "back",
+                sortable: false,
+                align: "center",
+                class: "headerClass",
+              },
+            ],
+            tableData: [
+              {
+                id: 1,
+                go: "06:00",
+                back: "06:00",
+              },
+              {
+                id: 2,
+                go: "06:15",
+                back: "06:15",
+              },
+              {
+                id: 3,
+                go: "06:30",
+                back: "06:30",
+              },
+              {
+                id: 4,
+                go: "06:40",
+                back: "06:40",
+              },
+              {
+                id: 5,
+                go: "07:00",
+                back: "07:40",
+              },
+              {
+                id: 6,
+                go: "07:20",
+                back: "07:50",
+              },
+              {
+                id: 7,
+                go: "08:30",
+                back: "08:20",
+              },
+              {
+                id: 8,
+                go: "08:50",
+                back: "09:40",
+              },
+            ],
           };
         },
         methods: {
@@ -339,9 +451,26 @@
             }
           },
           OpenDialog(param) {
-            this.dialog.title = param.text;
-            this.dialog.type = param.type;
-            this.isShow = true;
+            if (param.type === "local") {
+              console.log(1);
+              window.open(
+                "https://ebus.tycg.gov.tw/cms/api/route/3010/stop-address.pdf"
+              );
+            } else {
+              this.dialog.title = param.text;
+              this.dialog.type = param.type;
+              this.isShow = true;
+            }
+          },
+
+          row_classes(item) {
+            let classStr = "center";
+
+            if (item.id % 2 !== 0) {
+              classStr += " lightBrown";
+            }
+
+            return classStr;
           },
 
           // get 公車預估到站資料
@@ -463,28 +592,28 @@
         },
         watch: {
           searchText(val) {
-            this.GetBus("106");
-            // axios
-            //   .get(
-            //     `https://ptx.transportdata.tw/MOTC/v2/Bus/StopOfRoute/City/Taoyuan/${val}?$format=JSON`
-            //   )
-            //   .then((response) => {
-            //     console.log(response);
-            //     const data = response.data;
-            //     this.tabs[0] = `往 ${
-            //       data[0].Stops[data[0].Stops.length - 1].StopName.Zh_tw
-            //     }`;
-            //     this.timeLine1 = data[0].Stops;
-            //     this.timeLine2 = data[1].Stops;
-            //     this.tabs[1] = `往 ${
-            //       data[1].Stops[data[1].Stops.length - 1].StopName.Zh_tw
-            //     }`;
-            //     console.log(this.tabs);
-            //   })
-            //   .catch(function (error) {
-            //     // 请求失败处理
-            //     console.log(error);
-            //   });
+            // this.GetBus("106");
+            axios
+              .get(
+                `https://ptx.transportdata.tw/MOTC/v2/Bus/StopOfRoute/City/Taoyuan/${val}?$format=JSON`
+              )
+              .then((response) => {
+                console.log(response);
+                const data = response.data;
+                this.tabs[0] = `往 ${
+                  data[0].Stops[data[0].Stops.length - 1].StopName.Zh_tw
+                }`;
+                this.timeLine1 = data[0].Stops;
+                this.timeLine2 = data[1].Stops;
+                this.tabs[1] = `往 ${
+                  data[1].Stops[data[1].Stops.length - 1].StopName.Zh_tw
+                }`;
+                console.log(this.tabs);
+              })
+              .catch(function (error) {
+                // 请求失败处理
+                console.log(error);
+              });
           },
         },
       });
@@ -528,5 +657,9 @@
   .v-card__text {
     flex-grow: 1;
     overflow: auto;
+  }
+  .headerClass {
+    color: #785c4d !important;
+    font-size: 16px !important;
   }
 </style>
