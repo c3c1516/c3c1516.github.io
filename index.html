@@ -1,666 +1,667 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="/main.js" defer></script>
+    <title>Demo title here</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900"
+      href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,700;1,900&display=swap"
       rel="stylesheet"
     />
-    <link
-      href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css"
-      rel="stylesheet"
-    />
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui"
-    />
+    <link href="/style.css" rel="stylesheet" />
   </head>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-FBEXXSJ5FR"></script>
-  <body class="lightBackgrown">
-    <div id="app">
-      <v-app class="lightBackgrown">
-        <v-main
-          ><v-system-bar height="30" class="darkBrown">
-            <v-icon class="white--text">mdi-bus</v-icon
-            ><span class="white--text">跑跑公車</span>
-          </v-system-bar>
-          <v-container style="height: 100vh" fluid class="px-10 pt-5">
-            <v-row class="mt-0 mb-2 px-3 mx-auto">
-              <v-btn
-                v-for="btn in dialogButtons"
-                :key="btn.text"
-                class="green1 ma-1 blackBorder"
-                dark
-                @click="OpenDialog(btn)"
-              >
-                <v-icon left class="white--text"> mdi-{{btn.icon}} </v-icon>
-                <span>{{btn.text}}</span>
-              </v-btn>
-            </v-row>
-            <v-row>
-              <v-col cols="12" md="5" lg="4">
-                <v-card
-                  class="lightBrown blackBorder py-5 px-3 mx-auto"
-                  max-width="400px"
-                >
-                  <v-row class="mx-0">
-                    <v-col class="p-0"
-                      ><v-text-field
-                        v-model="searchText"
-                        solo
-                        color="darkBrown"
-                        label="輸入公車路線 查詢公車動態"
-                        prepend-inner-icon="mdi-magnify"
-                        hide-details
-                      >
-                      </v-text-field>
-                    </v-col>
-                  </v-row>
-                  <v-row
-                    v-for="rowBtns,r in buttons"
-                    :key="r"
-                    class="mx-0 px-0"
-                  >
-                    <v-col
-                      v-for="btn in rowBtns"
-                      :key="btn"
-                      class="px-0 mx-0 text-center"
-                      cols="2"
-                    >
-                      <v-btn
-                        class="white px-0"
-                        v-if="btn!==null"
-                        @click="Input(btn)"
-                        small
-                      >
-                        <v-icon v-if="btn==='del'" small>mdi-backspace</v-icon>
-                        <span v-else> {{btn}}</span>
-                      </v-btn>
-                    </v-col>
-                  </v-row>
-                </v-card>
-              </v-col>
-              <v-col cols="12" md="7">
-                <v-card class="blackBorder mx-auto" max-width="800px">
-                  <v-tabs
-                    v-model="tab"
-                    background-color="brown"
-                    dark
-                    v-if="tabs"
-                  >
-                    <v-tab v-for="item,i in tabs" :key="i"> {{ item }} </v-tab>
-                  </v-tabs>
-                  <v-tabs-items v-model="tab">
-                    <v-tab-item key="0">
-                      <v-card flat max-height="50vh">
-                        <v-card-text class="pa-0"
-                          ><v-row
-                            class="
-                              darkGreen
-                              ma-0
-                              white--text
-                              text-center
-                              blackBorder
-                            "
-                          >
-                            <v-col cols="4">站名 </v-col>
-                            <v-col cols="4"> 預估到站時間</v-col>
-                            <v-col cols="4">車次資訊 </v-col>
-                          </v-row>
-                          <v-timeline dense clipped v-if="timeLine1">
-                            <v-timeline-item
-                              color="grey"
-                              small
-                              v-for="item,i in timeLine1"
-                              :key="i"
-                            >
-                              <v-row>
-                                <v-col cols="3" sm="4">
-                                  {{item.StopName.Zh_tw}}
-                                </v-col>
-                                <v-col cols="4">
-                                  <v-chip outlined>{{item.time}}</v-chip>
-                                </v-col>
-                                <v-col cols="5" sm="4">
-                                  <v-chip outlined label
-                                    ><v-img
-                                      width="20"
-                                      src="./icon/wheel.png"
-                                      class="mr-2"
-                                    ></v-img
-                                    >FHJ-101</v-chip
-                                  >
-                                </v-col>
-                              </v-row>
-                            </v-timeline-item>
-                            <v-timeline-item color="grey" small>
-                              <v-row>
-                                <v-col cols="4"> 中壢分局 </v-col>
-                                <v-col cols="4">
-                                  <v-chip class="darkBrown" dark>進站中</v-chip>
-                                </v-col>
-                              </v-row>
-                            </v-timeline-item>
-                          </v-timeline></v-card-text
-                        >
-                      </v-card>
-                    </v-tab-item>
-                    <v-tab-item key="1">
-                      <v-card flat max-height="50vh">
-                        <v-card-text class="pa-0"
-                          ><v-row
-                            class="
-                              darkGreen
-                              ma-0
-                              white--text
-                              text-center
-                              blackBorder
-                            "
-                          >
-                            <v-col cols="4">站名 </v-col>
-                            <v-col cols="4"> 預估到站時間</v-col>
-                            <v-col cols="4">車次資訊 </v-col>
-                          </v-row>
-                          <v-timeline dense clipped v-if="timeLine2">
-                            <v-timeline-item
-                              color="grey"
-                              small
-                              v-for="item,i in timeLine2"
-                              :key="i"
-                            >
-                              <v-row>
-                                <v-col cols="3" sm="4">
-                                  {{item.StopName.Zh_tw}}
-                                </v-col>
-                                <v-col cols="4">
-                                  <v-chip outlined>{{item.time}}</v-chip>
-                                </v-col>
-                                <v-col cols="5" sm="4">
-                                  <v-chip outlined label
-                                    ><v-img
-                                      width="20"
-                                      src="./icon/wheel.png"
-                                      class="mr-2"
-                                    ></v-img
-                                    >FHJ-101</v-chip
-                                  >
-                                </v-col>
-                              </v-row>
-                            </v-timeline-item>
-                            <v-timeline-item color="grey" small>
-                              <v-row>
-                                <v-col cols="4"> 中壢分局 </v-col>
-                                <v-col cols="4">
-                                  <v-chip class="darkBrown" dark>進站中</v-chip>
-                                </v-col>
-                              </v-row>
-                            </v-timeline-item>
-                          </v-timeline></v-card-text
-                        >
-                      </v-card>
-                    </v-tab-item>
-                  </v-tabs-items>
-                </v-card>
-              </v-col>
-            </v-row>
-            <v-dialog v-model="isShow" width="70vw" max-width="800px">
-              <v-card class="px-5 py-3 lightBackgrown" height="500px">
-                <v-card-title>
-                  <span v-if="dialog">{{dialog.title}}</span>
-                  <v-spacer></v-spacer>
-                  <v-menu bottom left>
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-btn
-                        icon
-                        v-bind="attrs"
-                        v-on="on"
-                        @click="isShow = false"
-                      >
-                        <v-icon>mdi-close</v-icon>
-                      </v-btn>
-                    </template>
-                  </v-menu>
-                </v-card-title>
-                <v-divider></v-divider>
-                <v-card-text class="py-1 black--text">
-                  <template v-if="dialog.type==='price'">
-                    <v-radio-group v-model="row" row>
-                      <v-radio label="往 桃園" value="radio-1"></v-radio>
-                      <v-radio label="往 中壢" value="radio-2"></v-radio>
-                    </v-radio-group>
-                    <v-row>
-                      <v-col cols="6">
-                        <v-autocomplete
-                          prefix="起站"
-                          solo
-                          v-model="values"
-                          :items="start"
-                          dense
-                        ></v-autocomplete>
-                      </v-col>
-                      <v-col cols="6">
-                        <v-autocomplete
-                          prefix="迄站"
-                          solo
-                          v-model="values"
-                          :items="start"
-                          dense
-                        ></v-autocomplete>
-                      </v-col>
-                    </v-row>
-                    <v-row class="mt-0 pt-0">
-                      <v-col cols="12" sm="4">
-                        <v-sheet class="transparent">
-                          <h4>查詢結果</h4>
-                          <span>全票 31 元</span><br />
-                          <span>半票 16 元</span><br />
-                          <span>學生票 23 元</span></v-sheet
-                        >
-                      </v-col>
-                      <v-col cols="12" sm="8">
-                        <v-sheet class="transparent">
-                          <h4>桃園市市民卡乘車優惠：</h4>
-                          <span>
-                            (1)
-                            持市民卡乘車全票最高收60元；半票最高收30元；學生票最高收45元。 </span
-                          ><br />
-                          <span>
-                            (2) 第一趟次由乘客自行支付車資，並享有票價上限優惠。 </span
-                          ><br />
-                          <span>
-                            (3)
-                            第二趟次享有票價上限優惠及基本票價(全票18元、半票9元)免費。 </span
-                          ><br />
-                          <span>(4) 持學生卡享75折優惠。</span>
-                        </v-sheet>
-                      </v-col>
-                    </v-row>
-                  </template>
-                  <template v-if="dialog.type==='route'">
-                    <p class="mt-5">營運業者：中壢客運</p>
-                    <p>客服電話：0800-255722</p>
-                    <br />
-                    <p>營運業者：桃園客運</p>
-                    <p>客服電話：0800-053808</p>
-                  </template>
-                  <template v-if="dialog.type==='time'">
-                    <v-row
-                      ><v-col>
-                        <v-card class="mt-3 pa-0 blackBorder">
-                          <v-card-title class="darkBrown white--text my-0 py-1"
-                            ><span class="mx-auto">平日</span></v-card-title
-                          >
-                          <v-card-text class="pa-0">
-                            <v-data-table
-                              hide-default-footer
-                              :headers="headers"
-                              :items="tableData"
-                              :item-class="row_classes"
-                            ></v-data-table
-                          ></v-card-text>
-                        </v-card>
-                      </v-col>
-                      <v-col
-                        ><v-card class="mt-3 pa-0 blackBorder">
-                          <v-card-title class="darkBrown white--text my-0 py-1"
-                            ><span class="mx-auto">假日</span></v-card-title
-                          >
-                          <v-card-text class="pa-0">
-                            <v-data-table
-                              hide-default-footer
-                              :headers="headers"
-                              :items="tableData"
-                              :item-class="row_classes"
-                            ></v-data-table
-                          ></v-card-text> </v-card
-                      ></v-col>
-                    </v-row>
-                  </template>
-                  <template v-if="dialog.type==='road'">
-                    <v-img src="./icon/image.png"></v-img>
-                  </template>
-                </v-card-text>
-              </v-card>
-            </v-dialog>
-          </v-container>
-        </v-main>
-      </v-app>
+
+  <body>
+    <div class="parallax">
+      
+      <header class="primary-header">
+        <div class="wrapper">
+          <div class="primary-header__inner">
+            <div class="logo">
+              <img src="assets/Logo.webp" alt="" />
+            </div>
+            <nav class="primary-nav">
+              <ul role="list">
+                <li><a href="#">Why join us</a></li>
+                <li><a href="#">The founders</a></li>
+                <li><a href="#">Beta info</a></li>
+              </ul>
+            </nav>
+            <div class="flex-group" aria-label="social links">
+              <a href="#">X</a>
+              <a href="#">IG</a>
+              <a href="#">YT</a>
+            </div>
+          </div>
+        </div>
+      </header>
+      <div class="hero">
+        <div class="wrapper">
+          <h1 class="hero__title">
+            <span>Gear up!</span> We're going monster hunting!
+          </h1>
+          <button class="button">Sign up for beta</button>
+        </div>
+      </div>
+
+      <img class="parallax__bg" src="assets/bg.jpg" alt="" />
+      <img class="parallax__dust" src="assets/dust.webp" alt="" />
+      <img
+        class="parallax__foreground-back"
+        src="assets/foreground-back.webp"
+        alt=""
+      />
+      <img
+        class="parallax__foreground-front"
+        src="assets/foreground-front.webp"
+        alt=""
+      />
+      <img class="parallax__jax" src="assets/jax.webp" alt="" />
+      <img class="parallax__luna" src="assets/luna.webp" alt="" />
+      <img class="parallax__manny" src="assets/manny.webp" alt="" />
+      <img class="parallax__rays" src="assets/rays.webp" alt="" />
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
-    <script>
-      new Vue({
-        el: "#app",
-        vuetify: new Vuetify(),
-        data() {
-          return {
-            tab: null,
-            tabs: ["往 桃園", "往 中壢", "公車路線 地圖"],
-            buttons: [
-              ["紅", "藍", "棕", "1", "2", "3"],
-              ["綠", "橘", "黃", "4", "5", "6"],
-              ["A", "E", "F", "7", "8", "9"],
-              ["H", "L", "T", "R", "0", "del"],
-            ],
-            dialogButtons: [
-              { text: "票價查詢", type: "price", icon: "currency-usd" },
-              { text: "路線查詢", type: "route", icon: "routes" },
-              {
-                text: "時刻表",
-                type: "time",
-                icon: "clock-time-eight-outline",
-              },
-              { text: "站址表", type: "local", icon: "map-outline" },
-              { text: "路線圖", type: "road", icon: "map-marker" },
-            ],
-            searchText: "",
-            isShow: false,
-            dialog: {},
-            start: ["中壢分局"],
-            timeLine1: [
-              { StopName: { Zh_tw: "大同公司" }, time: "9:54" },
-              { StopName: { Zh_tw: "土地公廟" }, time: "9:54" },
-              { StopName: { Zh_tw: "奉化南順一街口" }, time: "9:54" },
-              { StopName: { Zh_tw: "關帝廟" }, time: "9:54" },
-              { StopName: { Zh_tw: "鴻福寺" }, time: "9:54" },
-              { StopName: { Zh_tw: "北門口" }, time: "9:54" },
-              { StopName: { Zh_tw: "北門新村" }, time: "9:54" },
-              { StopName: { Zh_tw: "臺灣菸酒公司" }, time: "9:54" },
-            ],
-            timeLine2: [
-              { StopName: { Zh_tw: "大同公司" }, time: "9:54" },
-              { StopName: { Zh_tw: "土地公廟" }, time: "9:54" },
-              { StopName: { Zh_tw: "奉化南順一街口" }, time: "9:54" },
-              { StopName: { Zh_tw: "關帝廟" }, time: "9:54" },
-              { StopName: { Zh_tw: "鴻福寺" }, time: "9:54" },
-              { StopName: { Zh_tw: "北門口" }, time: "9:54" },
-              { StopName: { Zh_tw: "北門新村" }, time: "9:54" },
-              { StopName: { Zh_tw: "臺灣菸酒公司" }, time: "9:54" },
-            ],
-            backData: [],
-            headers: [
-              {
-                text: "往中壢",
-                sortable: false,
-                value: "go",
-                align: "center",
-                class: "headerClass",
-              },
-              {
-                text: "往桃園",
-                value: "back",
-                sortable: false,
-                align: "center",
-                class: "headerClass",
-              },
-            ],
-            tableData: [
-              {
-                id: 1,
-                go: "06:00",
-                back: "06:00",
-              },
-              {
-                id: 2,
-                go: "06:15",
-                back: "06:15",
-              },
-              {
-                id: 3,
-                go: "06:30",
-                back: "06:30",
-              },
-              {
-                id: 4,
-                go: "06:40",
-                back: "06:40",
-              },
-              {
-                id: 5,
-                go: "07:00",
-                back: "07:40",
-              },
-              {
-                id: 6,
-                go: "07:20",
-                back: "07:50",
-              },
-              {
-                id: 7,
-                go: "08:30",
-                back: "08:20",
-              },
-              {
-                id: 8,
-                go: "08:50",
-                back: "09:40",
-              },
-            ],
-          };
-        },
-        methods: {
-          Input(text) {
-            if (text === "del") {
-              this.searchText = this.searchText.slice(0, -1);
-            } else {
-              this.searchText += text;
-            }
-          },
-          OpenDialog(param) {
-            if (param.type === "local") {
-              console.log(1);
-              window.open(
-                "https://ebus.tycg.gov.tw/cms/api/route/3010/stop-address.pdf"
-              );
-            } else {
-              this.dialog.title = param.text;
-              this.dialog.type = param.type;
-              this.isShow = true;
-            }
-          },
-
-          row_classes(item) {
-            let classStr = "center";
-
-            if (item.id % 2 !== 0) {
-              classStr += " lightBrown";
-            }
-
-            return classStr;
-          },
-
-          // get 公車預估到站資料
-          GetBus(routeName) {
-            let busData = [];
-            let goData = [];
-            // const searchBtn = document.querySelector("#searchBtn");
-            axios({
-              method: "get",
-              url: `https://ptx.transportdata.tw/MOTC/v2/Bus/EstimatedTimeOfArrival/City/Taoyuan/${routeName}?$format=JSON`,
-              // headers: GetAuthorizationHeader(),
-            })
-              .then((response) => {
-                console.log("預估", response);
-                const data = response.data;
-
-                // 篩出有在跑的公車(存公車物件)
-                const bus = data.filter((item) => item.PlateNumb);
-                // console.log('bus', bus)
-
-                //從有在跑的公車資料裡分類出「去程0」與「返程1」
-                const cachegoData = bus.filter((item) => !item.Direction);
-                const cachebackData = bus.filter((item) => item.Direction);
-
-                console.log("cachebackData", cachebackData);
-                // console.log('cachegoData',goData)
-
-                // 組出我要的資料格式
-                cachebackData.forEach((item) => {
-                  // [a,a,b,c]
-                  const index = this.backData
-                    .map((item) => item.plateNumb)
-                    .indexOf(item.PlateNumb);
-
-                  if (index === -1) {
-                    // 代表沒找到
-                    this.backData.push({
-                      plateNumb: item.PlateNumb, //車牌號碼
-                      stops: [
-                        {
-                          estimateTime: item.EstimateTime, //到站時間預估(秒)
-                          stopUID: item.StopUID, //站牌唯一識別代碼
-                        },
-                      ],
-                    });
-                  } else {
-                    // 有找到
-                    this.backData[index].stops.push({
-                      estimateTime: item.EstimateTime, //到站時間預估(秒)
-                      stopUID: item.StopUID, //站牌唯一識別代碼
-                    });
-                  }
-                });
-                console.log("backData", this.backData);
-
-                this.GetRoute(routeName, response.data[0].RouteID);
-              })
-              .catch((error) => console.log("error", error));
-          },
-          // get 公車路線站序資料
-          GetRoute(routeName, routeId) {
-            const goList = document.querySelector("#goList");
-            // const backList = document.querySelector("#backList");
-            axios({
-              method: "get",
-              url: `https://ptx.transportdata.tw/MOTC/v2/Bus/StopOfRoute/City/Taoyuan/${routeName}`,
-              // headers: GetAuthorizationHeader()
-            })
-              .then((response) => {
-                console.log("往返列表", response);
-                const data = response.data;
-
-                const routeData = data.filter(
-                  (item) => item.RouteID === routeId
-                );
-                console.log(routeData);
-
-                // 返程
-                let backStr = "";
-                let busID = "";
-                let time = 0;
-                let timeText = "";
-
-                routeData[1].Stops.forEach((item) => {
-                  this.backData.forEach((back) => {
-                    back.stops.forEach((stop) => {
-                      if (stop.stopUID === item.StopUID) {
-                        busID = back.plateNumb;
-                        time = Math.floor(stop.estimateTime / 60);
-                        // console.log(busID, time)
-
-                        // 文字顯示
-                        if (time === 0) {
-                          timeText = "進站中";
-                        } else if (time <= 1 && 0 < time) {
-                          timeText = "即將到站";
-                        } else if (!time) {
-                          timeText = "--";
-                        } else {
-                          timeText = `${time} 分鐘`;
-                        }
-                      }
-                    });
-                  });
-                  console.log(item, timeText, busID);
-                  //             backStr += `<li class="list-group-item d-flex align-items-center justify-content-between">
-                  //       <div class="d-flex align-items-center ">
-                  //         <p class="timeColor border rounded-pill px-2 me-2 mb-0 bg-light">${timeText}</p>
-                  //         <h5 class="fs-6 mb-0">${item.StopUID}/${item.StopName.Zh_tw}</h5>
-                  //       </div>
-                  //       <p class="mb-0 text-primary">${busID}</p>
-                  //     </li>
-                  //  `;
-                });
-                // backList.innerHTML = backStr;
-              })
-              .catch((error) => console.log("error", error));
-          },
-        },
-        watch: {
-          searchText(val) {
-            // this.GetBus("106");
-            axios
-              .get(
-                `https://ptx.transportdata.tw/MOTC/v2/Bus/StopOfRoute/City/Taoyuan/${val}?$format=JSON`
-              )
-              .then((response) => {
-                console.log(response);
-                const data = response.data;
-                this.tabs[0] = `往 ${
-                  data[0].Stops[data[0].Stops.length - 1].StopName.Zh_tw
-                }`;
-                this.timeLine1 = data[0].Stops;
-                this.timeLine2 = data[1].Stops;
-                this.tabs[1] = `往 ${
-                  data[1].Stops[data[1].Stops.length - 1].StopName.Zh_tw
-                }`;
-                console.log(this.tabs);
-              })
-              .catch(function (error) {
-                // 请求失败处理
-                console.log(error);
-              });
-          },
-        },
-      });
-    </script>
+    <main class="main-content">
+      <div class="wrapper">
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Eum nostrum
+          aspernatur nesciunt rem, officiis atque deserunt architecto excepturi
+          ducimus consectetur suscipit dolore sed tempora, assumenda corporis
+          eius quasi quas pariatur.
+        </p>
+        <p>
+          Sed minus alias quidem error fuga sint temporibus, accusamus totam!
+          Voluptates, deserunt? Dolore nulla iure asperiores quibusdam officia
+          pariatur deleniti aspernatur, assumenda numquam blanditiis cumque
+          voluptatem deserunt nesciunt, ea atque!
+        </p>
+        <p>
+          Dolor tenetur error similique, voluptatibus blanditiis deleniti
+          distinctio! Officia a, porro nobis provident illum deleniti nulla
+          consequuntur voluptatum enim repellat, architecto quas mollitia
+          consectetur assumenda rem magnam maiores ad nostrum.
+        </p>
+        <p>
+          Sequi laudantium quaerat necessitatibus voluptates voluptatem maiores
+          animi asperiores tempore error dolore minima autem modi esse sed et
+          pariatur quas, beatae fugit, earum eligendi tenetur! Doloremque
+          consequuntur voluptatem ratione fugiat.
+        </p>
+        <p>
+          Facilis voluptates necessitatibus, aspernatur deleniti nostrum porro
+          consequatur veniam eius aut nihil ut error quam, expedita ipsam dolore
+          ratione. Consequuntur culpa quasi quisquam quos magnam quibusdam vitae
+          asperiores eveniet quam.
+        </p>
+        <p>
+          Illo fuga, facilis cupiditate omnis, consequuntur quae maiores iure ab
+          perferendis obcaecati adipisci voluptatem hic nobis officiis fugit ut
+          voluptas enim? Distinctio, iusto aperiam. Aliquam vitae nobis eos ad
+          perspiciatis?
+        </p>
+        <p>
+          Recusandae quis vitae modi architecto magni error distinctio officiis
+          molestiae mollitia veniam! Cum qui provident sint laudantium
+          voluptatum accusantium debitis repudiandae? Sint laboriosam quis
+          veniam eum amet nesciunt earum perspiciatis?
+        </p>
+        <p>
+          Alias voluptate ad quasi ipsum mollitia optio dolore? Modi et
+          doloremque in harum ab hic, voluptatum odio molestias fuga quas
+          similique natus possimus libero voluptas distinctio beatae dignissimos
+          sunt deleniti.
+        </p>
+        <p>
+          Mollitia et atque impedit non sed, recusandae repudiandae, temporibus
+          ratione ipsam rem, aut consectetur maiores iusto praesentium fuga
+          cupiditate. Officiis assumenda atque saepe optio. Quod saepe et
+          temporibus officia iure?
+        </p>
+        <p>
+          Expedita quia doloremque pariatur natus optio vitae numquam
+          voluptatibus rem minima. In iusto cupiditate aspernatur, laboriosam
+          temporibus mollitia consequuntur veniam voluptatem earum saepe
+          delectus iure, quae maxime. Assumenda, facilis dolore?
+        </p>
+        <p>
+          Incidunt veritatis tempore, expedita, iure temporibus obcaecati
+          suscipit dolores quam nulla reiciendis esse architecto debitis quod
+          dolor maxime neque quas explicabo sed. Quo, corporis? Inventore,
+          ipsam. Quaerat temporibus consequatur beatae.
+        </p>
+        <p>
+          Dolores impedit ipsum facere rerum odio temporibus animi? Rerum eius
+          culpa dolores earum, officia consequatur quaerat pariatur cumque
+          natus, quia voluptatem eveniet doloremque deleniti quibusdam quam
+          impedit? Quam, nihil consequatur?
+        </p>
+        <p>
+          Vel assumenda sapiente numquam. Maxime, ducimus. Recusandae
+          reprehenderit nostrum molestias quia nam, natus aliquid ipsam magni
+          soluta beatae delectus expedita perspiciatis cupiditate iusto minima
+          maxime vitae, quo quos impedit culpa?
+        </p>
+        <p>
+          Quasi nostrum sit sed ducimus autem ab eos odit sunt, nemo libero,
+          quam doloribus laudantium maiores dignissimos veniam animi error.
+          Repellat doloremque nisi maiores voluptatibus animi blanditiis
+          similique repellendus eos.
+        </p>
+        <p>
+          Voluptatibus quo ut incidunt asperiores accusamus, vel deserunt totam
+          qui recusandae. Ipsam maxime omnis saepe dolor soluta tempora vel
+          illo, corporis culpa excepturi consequuntur nobis quaerat, dolorum
+          aliquid provident magni.
+        </p>
+        <p>
+          Quaerat dolores excepturi repudiandae nemo atque sapiente minus
+          nostrum neque cum illum, aspernatur voluptate autem recusandae officia
+          mollitia dolorem doloremque molestias accusantium aperiam at aliquam
+          error facilis alias. Non, dolor!
+        </p>
+        <p>
+          Officiis fugit neque nihil facilis quae molestiae dolor. Illum magnam
+          odit voluptatem quisquam provident illo architecto tenetur et,
+          praesentium sint omnis quod eum alias dolorum doloribus repellendus,
+          aperiam recusandae. Sunt!
+        </p>
+        <p>
+          Maiores, libero perferendis explicabo vel quibusdam laudantium a autem
+          velit, enim temporibus, adipisci inventore. Sapiente quibusdam officia
+          error porro animi nostrum, quam cum aliquid vel dolor, molestias quasi
+          temporibus nesciunt!
+        </p>
+        <p>
+          Dolor optio suscipit illum in, a laudantium consequatur vel incidunt
+          exercitationem, numquam, ratione beatae! Tempora autem porro obcaecati
+          inventore qui modi soluta veritatis nulla? Ut perferendis tempore
+          assumenda consequatur sint!
+        </p>
+        <p>
+          Dolore totam tempora aliquid praesentium qui soluta enim magnam.
+          Aperiam eum ut expedita distinctio amet veritatis iusto laboriosam
+          sapiente odio nostrum eius dignissimos, aliquid eveniet recusandae
+          corrupti ullam, debitis minus?
+        </p>
+        <p>
+          Illum, aperiam alias corrupti dicta nobis accusamus debitis enim
+          possimus accusantium quos modi odit eligendi dolores ut praesentium
+          explicabo a, repellat culpa cum ipsam porro earum quae. Hic, iste
+          odio.
+        </p>
+        <p>
+          Aliquid, vel esse delectus cupiditate obcaecati eum! Fugiat, aut
+          architecto vero, aperiam expedita nisi exercitationem harum reiciendis
+          placeat facilis cum, perspiciatis porro odit! Adipisci est asperiores
+          provident odio perspiciatis quam.
+        </p>
+        <p>
+          Facilis veritatis, aliquid sit itaque debitis veniam, aspernatur
+          deleniti beatae tempora a ut. Minima, doloremque aperiam? Doloremque
+          aspernatur impedit fuga sed nobis deserunt aliquid, atque amet, error
+          officiis molestias aperiam!
+        </p>
+        <p>
+          Doloribus suscipit magni voluptates facilis nam id possimus expedita
+          amet totam quis nisi adipisci praesentium sint quaerat, atque sit
+          nostrum eaque. Facere labore vero nulla tempora quod, modi repellat
+          deleniti!
+        </p>
+        <p>
+          Natus sunt pariatur enim explicabo expedita, magni temporibus vitae
+          distinctio nemo sint fugiat quis repudiandae, deserunt nulla officiis
+          facilis modi quo? Commodi qui veniam est nemo possimus distinctio,
+          libero molestias.
+        </p>
+        <p>
+          Nulla, velit magni cum expedita atque nisi quidem, accusamus similique
+          molestias repellat provident corporis tenetur optio. Tenetur,
+          repellendus, debitis at odio esse expedita commodi culpa quisquam,
+          libero velit sequi impedit?
+        </p>
+        <p>
+          Quidem quas amet reprehenderit dolore fugit asperiores ratione
+          nesciunt, culpa perferendis incidunt velit earum illo ea odio ad ex
+          quae! Doloremque animi eligendi quos culpa deleniti voluptatibus
+          nulla, odio harum.
+        </p>
+        <p>
+          Asperiores tempora corrupti omnis maiores eaque! Dolores quo deleniti
+          modi deserunt rerum officia. Fugit velit, deserunt autem maxime veniam
+          modi, quaerat eligendi, unde pariatur illo accusantium adipisci sunt
+          soluta ratione?
+        </p>
+        <p>
+          Ex obcaecati adipisci, a eos dignissimos quas labore in temporibus
+          quam. Animi assumenda a eaque sapiente esse deleniti sit non
+          accusamus, ab facilis eius magni voluptates natus sunt modi nostrum.
+        </p>
+        <p>
+          Consequatur rem architecto porro laboriosam, itaque earum ipsam quos,
+          consectetur eaque voluptatem quod ipsa eum accusantium! Voluptate
+          magni quas, temporibus cumque rerum sint necessitatibus atque eligendi
+          ex ut maiores veniam?
+        </p>
+        <p>
+          Praesentium at ex illum laboriosam, corporis eum nihil pariatur,
+          veniam consequuntur, eos nobis. Neque accusantium ducimus sit
+          molestias labore assumenda quae suscipit, vero, eius at maiores ipsam,
+          ipsa distinctio minus!
+        </p>
+        <p>
+          Odit itaque ullam iste minus modi quidem voluptas est a, quia nemo.
+          Voluptatibus recusandae quos nostrum sint nihil, consequatur, mollitia
+          laboriosam voluptatem dolores animi impedit! Libero quaerat minima
+          cumque nisi.
+        </p>
+        <p>
+          Aliquid eos, esse facilis temporibus voluptas facere mollitia hic
+          corrupti recusandae placeat delectus ab sunt sequi ipsam maiores
+          tenetur excepturi unde ut perspiciatis quibusdam laudantium nemo.
+          Libero nobis officia et.
+        </p>
+        <p>
+          Tempora non, enim cum harum nihil amet asperiores eius ut possimus
+          saepe culpa incidunt! Assumenda facilis blanditiis, eveniet porro
+          quisquam iste voluptas quae, ea, doloremque magni laudantium animi sit
+          nostrum?
+        </p>
+        <p>
+          Error labore est nemo eveniet placeat doloribus tempora odio eum,
+          voluptatibus assumenda provident amet alias facere ad harum vel, sit
+          perspiciatis, maxime quasi ut! Tempora est facilis tenetur possimus
+          enim!
+        </p>
+        <p>
+          Corrupti ab consequatur dolorem tempore libero neque placeat nisi enim
+          ipsam iusto eveniet voluptas odit ut, sapiente esse aspernatur, ad
+          cumque quibusdam, eum soluta? Delectus magnam asperiores molestias
+          voluptatem obcaecati.
+        </p>
+        <p>
+          Unde nulla alias iusto amet, voluptas similique id illum nesciunt
+          molestiae inventore non esse molestias iure quod rem suscipit facilis
+          ducimus exercitationem blanditiis est delectus, quisquam magnam.
+          Placeat, velit ipsam.
+        </p>
+        <p>
+          Facilis pariatur laudantium dignissimos, officiis sit quidem dolores.
+          Tempora voluptatem deserunt velit excepturi ratione accusamus nulla
+          autem. Blanditiis autem maxime, optio, cupiditate quae quisquam
+          consectetur labore nesciunt debitis ut totam?
+        </p>
+        <p>
+          Consectetur debitis exercitationem facere reiciendis ea corrupti
+          labore praesentium molestias repellat delectus, minima dolores
+          doloremque repellendus odit quia tempora maiores, temporibus eius
+          perferendis? Possimus ex illo earum cupiditate, ratione excepturi?
+        </p>
+        <p>
+          Ea id quidem culpa laborum ad molestias iure ipsa fuga, eius
+          laboriosam praesentium, possimus ratione quibusdam repellendus ducimus
+          adipisci error rerum quos veniam? Maiores voluptatem reiciendis, earum
+          vitae nisi illo.
+        </p>
+        <p>
+          Fugit magnam dolorem nobis quisquam velit, sapiente ut quia molestias,
+          voluptas rem corporis eligendi vero explicabo corrupti voluptatem modi
+          fugiat saepe quaerat! Non sapiente provident inventore corporis
+          nesciunt in tenetur!
+        </p>
+        <p>
+          Voluptatum, quo dolorem. Similique, hic eligendi cupiditate laudantium
+          minus doloremque deleniti ipsum iusto quia iste? Laborum dolor rerum
+          asperiores quo quas accusamus quibusdam atque cum aut! Perspiciatis
+          laboriosam voluptates et.
+        </p>
+        <p>
+          Dicta, explicabo. Esse tenetur obcaecati hic iusto quasi aperiam eius
+          quod distinctio nesciunt nulla! Maiores officia numquam debitis
+          quisquam amet, odio hic illum corporis quidem cupiditate iste sit,
+          aspernatur sunt!
+        </p>
+        <p>
+          Odio veritatis quia sint aut rem quidem veniam quos dolores eos
+          distinctio quas dignissimos voluptatum nam, consequatur, ullam
+          blanditiis assumenda laudantium. Vitae quam exercitationem minus
+          consectetur quasi eaque, doloremque totam.
+        </p>
+        <p>
+          Quidem blanditiis at, suscipit incidunt eligendi aliquam placeat
+          aperiam vitae quam nam quis distinctio iste quod? Voluptatibus, autem
+          atque veritatis, deserunt in error unde porro, est eos sit nihil odit?
+        </p>
+        <p>
+          Ipsa quidem dolorum iusto porro natus consectetur vitae facere amet
+          corrupti nemo quia adipisci nobis, praesentium delectus voluptatum
+          dolores, minus possimus alias odit! Dolorum laboriosam, voluptatum
+          tempore neque eos reiciendis.
+        </p>
+        <p>
+          Aut impedit ipsum molestiae ducimus nihil aliquid. Nihil rerum
+          architecto amet quisquam maxime alias, dolore porro officia labore,
+          saepe recusandae delectus dolorum earum maiores error sapiente,
+          eveniet consectetur. Beatae, nisi.
+        </p>
+        <p>
+          Quia reiciendis rem eius eos ratione quis itaque fugiat dolore in
+          magnam? Mollitia excepturi, fuga eum optio, sunt et a soluta ex cum
+          tempore odit, atque minus rem aspernatur beatae?
+        </p>
+        <p>
+          Ut minima, eius nobis aspernatur iure unde beatae nostrum totam! Nihil
+          in voluptatum voluptas necessitatibus, quaerat amet quibusdam. Quis,
+          numquam! Numquam, sed magni? Aliquam hic in, earum voluptatum officia
+          quis.
+        </p>
+        <p>
+          Consequatur explicabo dignissimos natus dolor accusamus atque quia cum
+          autem aliquam. Eligendi aliquid mollitia, voluptas possimus sit ipsa
+          fugiat inventore? In quo aliquid officiis et incidunt, harum libero a
+          necessitatibus.
+        </p>
+        <p>
+          Saepe beatae illo nam hic optio. Et consectetur, modi unde ducimus
+          corporis animi nam repudiandae voluptates aut ratione, odio eveniet
+          quam ea? Sapiente, quos? At illo facere quod maiores provident?
+        </p>
+        <p>
+          Dolorum incidunt provident cumque veritatis, pariatur dolor dolore
+          deleniti dicta. Maiores laborum iusto ullam dolorem qui ipsum, beatae
+          laboriosam placeat dolores? Expedita, eos ut tempora nam commodi
+          quibusdam earum est!
+        </p>
+        <p>
+          Veniam quidem mollitia consequatur ullam velit ratione nostrum dolorum
+          dolores quos. Dicta dolorum quae perspiciatis, autem repellat itaque
+          praesentium amet possimus quaerat quis quisquam adipisci cumque
+          officiis voluptatem in exercitationem.
+        </p>
+        <p>
+          Eligendi beatae cupiditate perspiciatis at inventore blanditiis et
+          itaque facere. Tenetur pariatur blanditiis recusandae, debitis,
+          assumenda consequuntur molestias beatae quae quibusdam ipsum aliquam
+          nam eaque ut id molestiae iusto deserunt.
+        </p>
+        <p>
+          Dolorum optio itaque officiis at, ex, illum nam earum dolor architecto
+          beatae inventore similique, laborum atque modi! Quae sed debitis
+          repellat possimus odit quis amet. Itaque modi numquam consectetur
+          deserunt!
+        </p>
+        <p>
+          Sapiente provident aspernatur, assumenda maiores cumque suscipit ipsam
+          sit dolores cum architecto dolore numquam sunt doloribus. Eaque
+          expedita, aliquid quas impedit doloribus harum! Perferendis error
+          labore magnam nihil. Quas, assumenda?
+        </p>
+        <p>
+          Maiores quia reiciendis aliquid fuga laudantium, nesciunt laboriosam
+          soluta repudiandae ea ratione enim mollitia eaque eum sed autem porro
+          omnis! Veniam voluptatum, delectus ullam quod numquam enim dolor
+          blanditiis ut!
+        </p>
+        <p>
+          Accusamus inventore rem perferendis eligendi autem laudantium ab
+          veniam facere, accusantium, alias eum eaque commodi sapiente.
+          Blanditiis, voluptatibus natus? Atque sapiente distinctio voluptatum
+          earum! Quidem laboriosam id odio nisi necessitatibus.
+        </p>
+        <p>
+          Itaque, earum nihil? Repudiandae quod dolorem modi tempora corporis,
+          vel ut, soluta sapiente ipsam optio animi ea harum illum totam
+          molestiae voluptatibus nesciunt ipsum unde sunt autem perspiciatis
+          vero voluptatum!
+        </p>
+        <p>
+          Sed amet ducimus provident, nemo eos cumque nihil harum commodi quae
+          placeat deleniti ad animi atque reiciendis ex minima temporibus soluta
+          neque rem enim culpa earum? Hic modi eos corrupti!
+        </p>
+        <p>
+          Quam minima error at eos repellat? Quos doloribus tempora animi unde
+          inventore voluptatibus, harum tenetur numquam exercitationem
+          dignissimos praesentium, magnam aut nisi libero molestiae totam
+          perspiciatis iure natus corrupti obcaecati!
+        </p>
+        <p>
+          Soluta, laboriosam! Quos veniam possimus labore distinctio,
+          voluptatibus corrupti minima quia reiciendis optio! Praesentium velit
+          repudiandae rerum error nemo odit, quis aperiam reprehenderit ab nihil
+          totam accusamus quisquam sunt provident?
+        </p>
+        <p>
+          Totam ipsum corporis quidem iusto fuga, laborum at reiciendis quos
+          officiis laudantium a et. Ratione, animi ut tempora, aliquam vero
+          reprehenderit officia fuga distinctio sint natus eligendi. Quos,
+          inventore nihil.
+        </p>
+        <p>
+          Minus, qui molestias eos eaque nemo placeat dolores cumque accusamus
+          accusantium laborum dolor itaque dignissimos quae rem facere nihil
+          provident rerum error ex ut ab asperiores amet. Veniam, sapiente
+          culpa.
+        </p>
+        <p>
+          Amet ipsa non quibusdam nesciunt possimus accusamus quo veritatis
+          aperiam accusantium distinctio nisi vel, illum unde cum est harum
+          tempora ut quisquam quod ducimus? Ipsam quam exercitationem iure fugit
+          asperiores.
+        </p>
+        <p>
+          Illum, ducimus cumque consectetur eius distinctio labore assumenda
+          illo similique! Quibusdam architecto non ea dolorem repudiandae.
+          Dolores laudantium eligendi vero laboriosam, corporis quos, nemo fuga
+          repellat nulla sunt nihil minus!
+        </p>
+        <p>
+          Eius minus fugit, quasi architecto nesciunt reiciendis eum recusandae
+          dignissimos nulla iusto enim quibusdam perferendis? Ullam beatae ab
+          incidunt tenetur numquam voluptates alias velit est eius at? Fugit,
+          repellendus laborum.
+        </p>
+        <p>
+          Perspiciatis itaque ea odio magni soluta repellat non aut, esse
+          voluptatibus pariatur vero, autem quis ut adipisci maiores? Velit
+          fugiat ea iusto praesentium cupiditate! Assumenda distinctio aliquam
+          error excepturi quos.
+        </p>
+        <p>
+          Reiciendis ducimus dignissimos delectus assumenda ipsa laudantium,
+          inventore, placeat excepturi laboriosam odio eius officiis neque
+          velit, porro qui omnis soluta blanditiis nihil id officia minima
+          expedita laborum esse? Inventore, voluptate.
+        </p>
+        <p>
+          Quo, voluptate possimus ea ratione quidem ad accusamus. Alias cum
+          itaque perspiciatis et, asperiores debitis ratione delectus earum
+          accusamus distinctio doloribus incidunt corrupti quia voluptatum
+          reprehenderit autem nemo! Asperiores, aspernatur.
+        </p>
+        <p>
+          Qui unde impedit aliquid voluptas, obcaecati nihil necessitatibus
+          cumque corrupti harum accusantium tenetur ad eveniet repudiandae quam
+          facere eius est laudantium! Ea sit eaque fugit, dolores accusamus vero
+          soluta provident.
+        </p>
+        <p>
+          Natus, sapiente maxime aliquid modi velit quisquam ullam, vero sunt
+          minus cum sequi distinctio quia dolores possimus. Earum quae quibusdam
+          debitis porro, minima incidunt, eius deleniti, delectus repellat
+          architecto eligendi.
+        </p>
+        <p>
+          Voluptate eaque tenetur autem perferendis deleniti optio error
+          sapiente perspiciatis minus, quidem minima, recusandae illum unde
+          animi in, corrupti assumenda cum eos numquam sit nemo praesentium.
+          Nostrum modi ipsam vero?
+        </p>
+        <p>
+          Perferendis, atque sit. Cupiditate perferendis temporibus vel?
+          Excepturi commodi magnam doloribus, repellat numquam, aperiam ad
+          quisquam est dolorem earum veniam labore nesciunt. Dicta dolorum quam
+          quaerat eos nostrum voluptatem quae.
+        </p>
+        <p>
+          Nisi ab odio quia natus culpa maxime nulla provident illum ipsa iure
+          est, fugiat accusantium ipsum cumque quasi enim molestias deleniti
+          quidem adipisci possimus velit veniam voluptas laboriosam. Incidunt,
+          earum.
+        </p>
+        <p>
+          Iste rem, ullam labore iusto quo eligendi deserunt assumenda omnis
+          corporis earum. Odio laboriosam at harum eaque dolore velit quis
+          voluptates similique sint perferendis, earum illum corporis voluptas,
+          voluptatibus debitis.
+        </p>
+        <p>
+          Unde nam quisquam saepe impedit tempore laudantium omnis perferendis
+          placeat ex! Qui quos eos cupiditate placeat eius recusandae veritatis
+          facere ea, quam reiciendis consectetur ut eum enim, voluptate adipisci
+          quae!
+        </p>
+        <p>
+          Magni, fugit saepe autem dignissimos obcaecati hic dolorum sed.
+          Doloribus eligendi soluta sit dolores quae earum quo velit minima
+          voluptatem. Tempora dicta architecto soluta, corrupti quam culpa
+          praesentium incidunt fugiat?
+        </p>
+        <p>
+          Ipsam tenetur vitae totam neque quam! Assumenda quaerat laboriosam
+          atque voluptate ipsum labore totam perferendis nam numquam tempora
+          pariatur, amet error quidem quisquam iure ex, vero rem? Quisquam, fuga
+          quidem!
+        </p>
+        <p>
+          Autem similique porro reiciendis fugiat perspiciatis ducimus ipsum et
+          esse ratione voluptate exercitationem doloremque amet corporis
+          consequuntur tenetur animi veniam perferendis vitae, ea, sunt illo!
+          Facilis qui ut assumenda officia!
+        </p>
+        <p>
+          Cum, ratione incidunt. Libero repudiandae cum alias minus sit cumque,
+          assumenda beatae, distinctio enim aperiam aut illum voluptas neque
+          veniam aliquid? Ullam perferendis, neque voluptates assumenda tempora
+          repellendus voluptatibus explicabo.
+        </p>
+        <p>
+          Quas quos aut, in a eum beatae impedit, deserunt dolor tempora quae
+          nam iste aspernatur voluptas ut nihil sunt officiis repudiandae
+          recusandae rem saepe, asperiores hic! Cupiditate quidem eos velit.
+        </p>
+        <p>
+          Animi, quaerat consectetur quo aliquid rerum possimus, fugiat ad
+          maiores fuga explicabo eaque ducimus. Quibusdam quos excepturi
+          doloremque a voluptate, tempora beatae blanditiis, pariatur adipisci
+          harum ipsa expedita, ipsam alias!
+        </p>
+        <p>
+          Quae pariatur quam libero non repellendus animi sed, labore sint nisi
+          vel tempora velit dolorem distinctio veritatis suscipit molestias
+          dolor deserunt cum sequi eum ad? Vel reprehenderit ea deleniti earum.
+        </p>
+        <p>
+          Quae fugit iure totam repellendus, facilis reiciendis laborum quaerat
+          praesentium dolores quasi! Pariatur praesentium, blanditiis in nam
+          placeat corporis culpa provident? Sunt repellendus perspiciatis quia
+          minima nihil sit fuga optio!
+        </p>
+        <p>
+          Est provident maxime et architecto reprehenderit a fugit placeat
+          veritatis, distinctio quibusdam illo facere, in laudantium minima
+          labore aperiam rem numquam molestiae mollitia expedita doloribus,
+          temporibus excepturi. Est, sed odio!
+        </p>
+        <p>
+          Ad nihil quas placeat est obcaecati veniam dolore ipsum aliquid
+          corporis reprehenderit soluta voluptatum odit repellat earum
+          voluptatem dicta laudantium autem quis quod, officia impedit nemo
+          cupiditate natus? Sequi, suscipit!
+        </p>
+        <p>
+          Tempora consequuntur est autem tempore maiores eius? Ratione nihil
+          esse architecto deserunt laudantium odio corrupti provident veritatis,
+          officia similique minima sit facere temporibus porro facilis quis
+          distinctio, tenetur neque maiores?
+        </p>
+        <p>
+          Praesentium odit facilis optio numquam, libero necessitatibus maiores
+          rem obcaecati ex ea consequatur laborum possimus! Quasi aut libero ad
+          commodi nisi beatae, a illo neque, cumque nam consectetur!
+          Consectetur, ut.
+        </p>
+        <p>
+          Magnam enim perferendis odit doloremque, provident ipsum laudantium
+          exercitationem minima voluptatibus et natus delectus recusandae quam
+          eligendi assumenda velit nam. Quae harum iusto, excepturi quibusdam
+          provident nulla culpa saepe velit.
+        </p>
+        <p>
+          Hic molestias quos accusamus ea. Quae ullam repellendus voluptates
+          repellat at quibusdam sed laudantium recusandae? Dolore placeat itaque
+          tempora velit facere similique numquam consequatur esse alias? Eius
+          sit quos facere.
+        </p>
+        <p>
+          Adipisci numquam corporis doloremque velit similique suscipit delectus
+          eligendi vero optio illo fugit sapiente at vitae ullam nam qui
+          praesentium, architecto autem laudantium quisquam. Laudantium maxime
+          iusto eum sunt iure?
+        </p>
+        <p>
+          Sint, possimus deleniti ipsum repudiandae praesentium rerum dolorem
+          totam pariatur facilis eos culpa animi cum dolorum excepturi ipsam
+          iusto dolor beatae. Minima, nesciunt repellendus! Velit, illo
+          blanditiis. Recusandae, asperiores explicabo.
+        </p>
+        <p>
+          Facere aperiam dolore, officiis repudiandae repellendus asperiores
+          nihil eum nam quae. Earum recusandae incidunt dolorem praesentium
+          maiores dignissimos ullam, nobis minima et ex, quaerat cum nulla
+          nesciunt sit temporibus. Fugiat!
+        </p>
+        <p>
+          Quidem commodi dolorem ipsum architecto modi veritatis rem excepturi
+          tenetur iste? Error exercitationem doloribus nulla obcaecati quam
+          quaerat rem quibusdam magnam sint similique quia reprehenderit iure
+          nisi, accusantium distinctio est.
+        </p>
+        <p>
+          Sequi animi nemo veniam adipisci laudantium? Aut possimus quis rerum
+          consectetur animi laborum, deleniti a quidem distinctio officia quam.
+          In corporis modi accusantium perferendis eveniet aliquam ducimus ab
+          velit amet.
+        </p>
+        <p>
+          Culpa molestiae, perferendis numquam beatae explicabo provident
+          corporis fugiat neque, expedita mollitia excepturi, quis aut ipsam?
+          Possimus accusantium ratione blanditiis quidem, explicabo vel et fugit
+          fuga excepturi quo tempora! Nulla.
+        </p>
+        <p>
+          Ipsa ipsam aliquid doloribus! Sunt natus, quod earum autem dignissimos
+          blanditiis corporis tempore, odio, deleniti provident ea illo commodi
+          consectetur. Dicta quaerat nostrum odio maxime ut ducimus corrupti
+          quos eaque.
+        </p>
+        <p>
+          Deleniti ipsam, dicta numquam dolore rem magni, porro tempora fuga
+          quibusdam voluptatibus quae labore quaerat nisi necessitatibus optio
+          asperiores alias consequuntur! Laborum possimus quidem vel! Facilis
+          perspiciatis obcaecati nam cumque?
+        </p>
+        <p>
+          Libero soluta quos illo, quisquam doloribus architecto reiciendis
+          consectetur doloremque similique provident cumque sunt totam nisi
+          quam, ab earum veniam fugiat! Consectetur, doloremque? Corrupti
+          quibusdam explicabo quod. Est, sint voluptatum.
+        </p>
+      </div>
+    </main>
   </body>
 </html>
-
-<style>
-  .darkBrown {
-    background-color: #785c4d !important;
-  }
-  .brown {
-    background-color: #d4b5a0 !important;
-  }
-  .lightBrown {
-    background-color: #edded3 !important;
-  }
-  .lightBackgrown {
-    background-color: #fff7f1 !important;
-  }
-  .lightGreen {
-    background-color: #b7b7a4 !important;
-  }
-  .green1 {
-    background-color: #a5a58d !important;
-  }
-  .darkGreen {
-    background-color: #6b705c !important;
-  }
-  .gray {
-    background-color: #ababab !important;
-  }
-  .blackBorder {
-    border: 2px black solid !important;
-    box-sizing: border-box !important;
-  }
-  .v-card {
-    display: flex !important;
-    flex-direction: column;
-  }
-  .v-card__text {
-    flex-grow: 1;
-    overflow: auto;
-  }
-  .headerClass {
-    color: #785c4d !important;
-    font-size: 16px !important;
-  }
-</style>
